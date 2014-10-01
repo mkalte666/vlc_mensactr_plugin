@@ -1,11 +1,14 @@
 /*****************************************************************************
- * my-video.c: simple vlc vidoe output driver
+ * video_output.c: simple vlc vidoe output driver, modified to be used with the Mensadisplay of Stratum0
  *****************************************************************************
  * Copyright (C) 2008 VLC authors and VideoLAN
- * Copyrgiht (C) 2010 Rémi Denis-Courmont
+ * Copyright (C) 2010 Rémi Denis-Courmont
+ * Copyright (c) 2014 Malte Kießling 
  *
  * Authors: Sam Hocevar <sam@zoy.org>
  *          Dave McCoy <dave.mccoy@cospandesign.com>
+ * 	Later Modified:
+ * 	    Malte Kießling <mkalte666@stratum0.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
