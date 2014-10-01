@@ -53,8 +53,9 @@ void *requester;
 
 int Blackvalue = 128;
 bool shouldCalcBlackvalue = false;
+bool isInverted = false;
 
-void setupRenderer(char* url, bool dynamic, int value) {
+void setupRenderer(char* url, bool dynamic, int value, bool inverted) {
 	screen = (struct msgBlit*) malloc(sizeof(struct msgBlit));
 	screen->x = 0;
 	screen->y = 0;
@@ -70,6 +71,7 @@ void setupRenderer(char* url, bool dynamic, int value) {
 		printf("Dynamic averge calculation is active!\n");
 	}
 	printf("Setting up Mensadisplay renderer complete. Using %i as blackvalue (basevalue if dynamic mode is active)\n", Blackvalue);
+	isInverted = inverted;
 }
 	
 void destroyRenderer() {
@@ -109,7 +111,11 @@ void* blit(uint8_t*pixels, int w, int h) {
 		//note: we use > value ? 255: 00 and value is the point where on and of switch values
 		
 		uint8_t result = (uint8_t)blerp((float)c00, (float)c10, (float)c01, (float)c11, gx-gxi, gy-gyi);
-		screen->data[x+y*WIDTH] = (result > Blackvalue) ? 255 : 0;
+		if(isInverted==true) {
+			screen->data[x+y*WIDTH] = (result > Blackvalue) ? 0 : 255;
+		} else {
+			screen->data[x+y*WIDTH] = (result > Blackvalue) ? 255 : 0;
+		}
 		if(shouldCalcBlackvalue == true) {
 			NewBlackvalue = (NewBlackvalue + result);
 		}

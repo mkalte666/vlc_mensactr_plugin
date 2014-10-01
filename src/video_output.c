@@ -55,6 +55,9 @@
 #define T_BVD ("Dynamic Blackvalue")
 #define LT_BVD ("Dyamic calculation of the Blackvalue")
 
+#define T_INV ("Invert output")
+#define LT_INV ("If true the output will be inverted so B->W and W->B")
+
 static int Open(vlc_object_t *object);
 static void Close(vlc_object_t *);
 
@@ -79,6 +82,7 @@ vlc_module_begin()
     add_string          ("mensa-url", "tcp://localhost:5556", T_URL, LT_URL, true)
     add_integer		("mensa-bv", 128, T_BV, LT_BV, true)
     add_bool        	("mensa-bvd", false, T_BVD, LT_BVD, true)
+    add_bool		("mensa-inv", false, T_INV, LT_INV, true)
     set_callbacks       (Open, Close                                               )
 	
 
@@ -110,7 +114,7 @@ static int Open(vlc_object_t *object){
 
 
   //Setup renderer
-	setupRenderer(var_InheritString(vd, "mensa-url"), var_InheritBool(vd, "mensa-bvd"), var_InheritInteger(vd, "mensa-bv"));
+	setupRenderer(var_InheritString(vd, "mensa-url"), var_InheritBool(vd, "mensa-bvd"), var_InheritInteger(vd, "mensa-bv"), var_InheritBool(vd, "mensa-inv"));
 
 
   //Debug Interface

@@ -32,7 +32,7 @@
 #include <vlc_vout_display.h>
 #include <vlc_picture_pool.h>
 
-void setupRenderer(char*, bool, int);
+void setupRenderer(char*, bool, int, bool);
 void destroyRenderer();
 void* blit(uint8_t*, int, int);
 
