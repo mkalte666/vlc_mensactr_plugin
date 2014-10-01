@@ -16,3 +16,5 @@ To get started (Assuming this will be built on an Ubuntu platform):
 8. Play a video and bask in the debug output (if you ran vlc from the command line)
 
 To change the settings of this plugin, you'll have to switch "view all" on in the vlc preferences. You can modifiy the B/W threshold and swtich its dynamic calculation on/off there. 
+
+I used https://github.com/cospan/vlc_plugin as a base.
