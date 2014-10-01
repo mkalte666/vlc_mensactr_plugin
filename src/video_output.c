@@ -26,16 +26,7 @@
  * Preamble
  *****************************************************************************/
 
-
-
-#include <assert.h>
-#include <stdio.h>
-
-#include <vlc_common.h>
-#include <vlc_plugin.h>
-#include <vlc_vout_display.h>
-#include <vlc_picture_pool.h>
-
+#include "video_render.h"
 
 #define MODULE_STRING "my-video"
 
@@ -52,14 +43,21 @@
 #define T_PITCH ("Pitch")
 #define LT_PITCH ("Video memory buffer pitch in bytes.")
 
+#define T_URL ("URL")
+#define LT_URL ("Url of the mensadisplay")
 
+#define T_BV ("Blackvalue")
+#define LT_BV ("The value where 1 led switches from On to Off")
+
+#define T_BVD ("Dynamic Blackvalue")
+#define LT_BVD ("Dyamic calculation of the Blackvalue")
 
 static int Open(vlc_object_t *object);
 static void Close(vlc_object_t *);
 
 vlc_module_begin()
-    set_description     ("My Video Output"                                       )
-    set_shortname       ("My Video"                                              )
+    set_description     ("Mensadisplay Video Output"                                       )
+    set_shortname       ("Mensadisplay"                                              )
 
     set_category        (CAT_VIDEO                                                 )
     set_subcategory     (SUBCAT_VIDEO_VOUT                                         )
@@ -68,15 +66,18 @@ vlc_module_begin()
 //    add_string          ("my-chroma", NULL, CHROMA_TEXT, CHROMA_LONGTEXT, true   )
 //
     add_integer         ("my-width", 480, T_WIDTH, LT_WIDTH, false               )
-        change_private()
-    add_integer         ("my-height", 272, T_HEIGHT, LT_HEIGHT, false            )
-        change_private()
+        //change_private()
+    add_integer         ("my-height", 70, T_HEIGHT, LT_HEIGHT, false            )
+        //change_private()
     add_integer         ("my-pitch", (480 * 4), T_PITCH, LT_PITCH, false               )
-        change_private()
+        //change_private()
     add_string          ("my-chroma", "RV32", T_CHROMA, LT_CHROMA, true          )
-        change_private()
-
+        //change_private()
+    add_string          ("mensa-url", "tcp://localhost:5556", T_URL, LT_URL, true)
+    add_integer		("mensa-bv", 128, T_BV, LT_BV, true)
+    add_bool        	("mensa-bvd", false, T_BVD, LT_BVD, true)
     set_callbacks       (Open, Close                                               )
+	
 
 vlc_module_end()
 
@@ -103,6 +104,11 @@ static int Open(vlc_object_t *object){
       return VLC_EGENERIC;
   }
   sys->pool = NULL;
+
+
+  //Setup renderer
+	setupRenderer(var_InheritString(vd, "mensa-url"), var_InheritBool(vd, "mensa-bvd"), var_InheritInteger(vd, "mensa-bv"));
+
 
   //Debug Interface
   //End Debug Interface
@@ -162,6 +168,7 @@ static int Open(vlc_object_t *object){
   return VLC_SUCCESS;
 }
 static void Close(vlc_object_t *object){
+  destroyRenderer();
   vout_display_t *vd = (vout_display_t *)object;
   vout_display_sys_t *sys = vd->sys;
   //If we created a pool, delete it
@@ -180,16 +187,16 @@ static picture_pool_t *Pool(vout_display_t *vd, unsigned count){
 }
 static void Display(vout_display_t *vd, picture_t *picture, subpicture_t *subpicture){
   //vout_display_sys_t *sys = vd->sys;
-  printf ("Display Entered\n");
+  //printf ("Display Entered\n");
   //XXX: Specific Video Output
-  printf ("\tPicture Lines: %d\n", picture->p[0].i_lines);
-  printf ("\tBytes Per Line: %d\n", picture->p[0].i_pitch);
-  printf ("\tPixels Per Line: %d\n", (picture->p[0].i_pitch / 4));
-  printf ("\tVisible Lines: %d\n", picture->p[0].i_visible_lines);
-  printf ("\tVisible Pitch: %d\n", picture->p[0].i_visible_pitch);
+  //printf ("\tPicture Lines: %d\n", picture->p[0].i_lines);
+  //printf ("\tBytes Per Line: %d\n", picture->p[0].i_pitch);
+  //printf ("\tPixels Per Line: %d\n", (picture->p[0].i_pitch / 4));
+  //printf ("\tVisible Lines: %d\n", picture->p[0].i_visible_lines);
+  //printf ("\tVisible Pitch: %d\n", picture->p[0].i_visible_pitch);
 
   //write picture->p[0].p_pixels
-
+  blit(picture->p[0].p_pixels, picture->p[0].i_pitch / 4, picture->p[0].i_lines);
 
   VLC_UNUSED(vd);
   picture_Release(picture);

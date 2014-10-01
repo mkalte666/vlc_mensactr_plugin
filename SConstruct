@@ -1,7 +1,7 @@
 import utils
 
 utils.initialize_build()
-name = "my_video_plugin"
+name = "mensactr_video_plugin"
 out_path = utils.create_bin_name(name)
 
 env = Environment(CPPPATH=[
@@ -20,7 +20,8 @@ env = Environment(CPPPATH=[
                     '/usr/lib/',
                     '/usr/local/lib'],
                   LIBS=[
-                    'libvlc'])
+                    'libvlc',
+		    'libzmq'])
 
 env.MergeFlags('!pkg-config --cflags vlc-plugin')
 env.MergeFlags('!pkg-config --libs vlc-plugin')
