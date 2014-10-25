@@ -13,7 +13,7 @@ env = Environment(CPPPATH=[
                     '-g',
                     '-Wall',
                     '-Wextra',
-                    '-O2',
+                    '-O3',
                     '-DPIC'
                   ],
                   LIBPATH=[
