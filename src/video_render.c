@@ -121,7 +121,6 @@ void* blit(uint8_t*pixels, int w, int h) {
 	
 	//Send the data to the display and then a empty package
 
-if ((counter++ & 1) != 0) {
 	zmq_msg_t msg;
 	zmq_msg_init_size(&msg, sizeof(struct msgBlit));
 
@@ -130,7 +129,6 @@ if ((counter++ & 1) != 0) {
 	zmq_msg_init_size(&msg, 0);
 	zmq_msg_send(&msg, requester, 0);
 	zmq_recv(requester, NULL, 0, 0);
-}
 
 	//Free all the memory!
 	free(avPixels);
