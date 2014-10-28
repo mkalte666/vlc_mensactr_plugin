@@ -51,9 +51,11 @@ struct msgBlit *screen = NULL;
 void *context;
 void *requester;
 
-int Blackvalue = 128;
+int Blackvalue = 16;
 bool shouldCalcBlackvalue = false;
 bool isInverted = false;
+
+static int counter;
 
 void setupRenderer(char* url, bool dynamic, int value, bool inverted) {
 	screen = (struct msgBlit*) malloc(sizeof(struct msgBlit));
@@ -86,12 +88,13 @@ void* blit(uint8_t*pixels, int w, int h) {
 	char* avPixels = (char*)malloc(sizeof(char[w*h]));
 	//float av = 0;
 	for(int i = 0; i < w*h*4; i+=4) {
-		avPixels[i/4] = ((pixels[i]+pixels[i+1]+pixels[i+2]+pixels[i+3])/4);
+		/* REC 709 */
+//		avPixels[i/4] = ((18*pixels[i]+183*pixels[i+1]+54*pixels[i+2])/255);
+		avPixels[i/4] = ((29*pixels[i]+150*pixels[i+1]+77*pixels[i+2])/256);
 	}
 
 	//The resolution of the Mensadisplay is WIDTH*HEIGHT, but the size of pixels is not - cause random.
 	//used in case the value for black is calculated dynamicly
-	int NewBlackvalue = Blackvalue;
 	//we'll use bilinear interpolation
 	int x = 0;
 	int y = 0;
@@ -108,24 +111,16 @@ void* blit(uint8_t*pixels, int w, int h) {
 		uint8_t c10 = avPixels[gxi+1+gyi*w];
 		uint8_t c01 = avPixels[gxi+(gyi+1)*w];
 		uint8_t c11 = avPixels[gxi+1+(gyi+1)*w];
-		//note: we use > value ? 255: 00 and value is the point where on and of switch values
 		
 		uint8_t result = (uint8_t)blerp((float)c00, (float)c10, (float)c01, (float)c11, gx-gxi, gy-gyi);
-		if(isInverted==true) {
-			screen->data[x+y*WIDTH] = (result > Blackvalue) ? 0 : 255;
-		} else {
-			screen->data[x+y*WIDTH] = (result > Blackvalue) ? 255 : 0;
-		}
-		if(shouldCalcBlackvalue == true) {
-			NewBlackvalue = (NewBlackvalue + result);
-		}
+		if (result > Blackvalue)
+			screen->data[x+y*WIDTH] = (result - Blackvalue) * 255 / (255 - Blackvalue);
+		else
+			screen->data[x+y*WIDTH] = 0;
 	}
 	
-	if(shouldCalcBlackvalue == true) {
-		Blackvalue = NewBlackvalue / (WIDTH*HEIGHT+1);
-	}
-	//printf("bv is %i\n", Blackvalue);
 	//Send the data to the display and then a empty package
+
 	zmq_msg_t msg;
 	zmq_msg_init_size(&msg, sizeof(struct msgBlit));
 
@@ -134,7 +129,7 @@ void* blit(uint8_t*pixels, int w, int h) {
 	zmq_msg_init_size(&msg, 0);
 	zmq_msg_send(&msg, requester, 0);
 	zmq_recv(requester, NULL, 0, 0);
-	
+
 	//Free all the memory!
 	free(avPixels);
 	return NULL;
